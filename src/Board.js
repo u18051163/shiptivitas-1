@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Dragula from 'dragula';
 import 'dragula/dist/dragula.css';
 import Swimlane from './Swimlane';
@@ -55,6 +56,42 @@ export default class Board extends React.Component {
       <Swimlane name={name} clients={clients} dragulaRef={ref}/>
     );
   }
+
+  updateClassname(classes, newClass){
+    //Find and replace colour class name to new colour class name
+    classes.forEach((className, index) => {
+      if(className.startsWith('Card-')){
+        classes[index] = newClass;
+      }
+    })
+
+    return classes.join(' ');
+  }
+
+  componentDidMount(){
+    let board = ReactDOM.findDOMNode(this);
+
+    //get all swimlane columns in the board
+    let columns = board.getElementsByClassName('Swimlane-dragColumn');
+    Dragula(Array.from(columns)).on('drop', (el, target, source, sibling) => {
+
+        //Change colour class name according to new swimlane  
+        switch(target){
+          case this.swimlanes.backlog.current:
+            el.className = this.updateClassname(el.className.split(' '), 'Card-grey')
+            break;
+          case this.swimlanes.inProgress.current:
+            el.className = this.updateClassname(el.className.split(' '), 'Card-blue')
+            break;
+          case this.swimlanes.complete.current:
+            el.className = this.updateClassname(el.className.split(' '), 'Card-green')
+            break;
+          default:
+        }
+    });
+  }
+
+  
 
   render() {
     return (
